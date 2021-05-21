@@ -4,9 +4,6 @@ import {Document, Schema, model} from 'mongoose';
 interface PlateInterface extends Document {
   name: string,
   ingredients: string[], //deberia ser una tupla para el alimento y su cantidad
-  //calorias
-  //Grupo de alimento predominantes
-  //Price
 }
 
 const PlateSchema = new Schema({

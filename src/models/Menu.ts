@@ -4,10 +4,6 @@ import {Document, Schema, model} from 'mongoose';
 interface MenuInterface extends Document {
   name: string,
   plates: string[],
-  //composición nutricional
-  //Grupo de alimento predominantes
-  //composición nutricional del menú
-  //Price
 }
 
 const MenuSchema = new Schema({
