@@ -3,7 +3,14 @@ import {Document, Schema, model} from 'mongoose';
 
 interface PlateInterface extends Document {
   name: string,
-  ingredients: string[], //deberia ser una tupla para el alimento y su cantidad
+  category: 'Entrante' | 'Primer plato' | 'Segundo plato' | 'Postre',
+  ingredients: any[],
+  hydrates: number,
+  proteins: number,
+  lipids: number,
+  kcal: number,
+  price: number,
+  //predominant: 'Carne' | 'Pescado' | 'Moluscos' | 'Huevos' | 'Tofu' | 'Frutos secos' | 'Semillas' | 'Legumbres' | 'Verduras' | 'Hortalizas' | 'Leche' | 'Quesos' | 'Embutidos' | 'Cereales' | 'Frutas' | 'Dulces' | 'Grasa',
 }
 
 const PlateSchema = new Schema({
@@ -18,6 +25,34 @@ const PlateSchema = new Schema({
       }
     },
   },
+  category: {
+    type: String,
+    required: true,
+    enum: ['Entrante', 'Primer plato', 'Segundo plato', 'Postre'],
+  },
+  ingredients: {
+    type: Object,
+    required: true
+  },
+  hydrates: {
+    type: Number
+  },
+  proteins: {
+    type: Number
+  },
+  lipids: {
+    type: Number
+  },
+  kcal: {
+    type: Number
+  },
+  price: {
+    type: Number
+  }
+  /*predominant: {
+    type: String,
+    enum: ['Carne', 'Pescado', 'Moluscos', 'Huevos', 'Tofu', 'Frutos secos', 'Semillas', 'Legumbres', 'Verduras', 'Hortalizas', 'Leche', 'Quesos', 'Embutidos', 'Cereales', 'Frutas', 'Dulces', 'Grasa']
+  }*/
 });
 
 export const Plate = model<PlateInterface>('Plate', PlateSchema)

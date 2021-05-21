@@ -34,3 +34,30 @@ patchRouter.patch('/ingredients', (req, res) => {
     }
   }
 });
+
+
+patchRouter.patch('/ingredients/:id', (req, res) => {
+  const allowedUpdates = ['name', 'group', 'origin', 'hydrates', 'proteins', 'lipids', 'price'];
+  const actualUpdates = Object.keys(req.body);
+  const isValidUpdate =
+      actualUpdates.every((update) => allowedUpdates.includes(update));
+
+  if (!isValidUpdate) {
+    res.status(400).send({
+      error: 'No se permite la actualizacion',
+    });
+  } else {
+    Ingredient.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    }).then((ingredient) => {
+      if (!ingredient) {
+        res.status(404).send();
+      } else {
+        res.send(ingredient);
+      }
+    }).catch((error) => {
+      res.status(400).send(error);
+    });
+  }
+});

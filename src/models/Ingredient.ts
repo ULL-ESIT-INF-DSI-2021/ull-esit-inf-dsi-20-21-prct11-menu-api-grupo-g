@@ -7,6 +7,7 @@ interface IngredientInterface extends Document {
   hydrates: number,
   proteins: number,
   lipids: number,
+  kcal: number,
   price: number,
 }
 
@@ -63,6 +64,9 @@ const IngredientSchema = new Schema({
         throw new Error('Los lipidos no puede ser negativo');
       }
     },
+  },
+  kcal: {
+    type: Number
   },
   price:  {
     type: Number,
