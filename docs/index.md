@@ -17,13 +17,19 @@ Para desarrollar esta práctica se han implementado dos directorios, el director
 
 En el directorio **src** contiene a su vez los ficheros ------ y los directorios **db**, **models** y **routers**. En el directorio **db** guardamos los ficheros necesarios para conectarnos al servidor de **MongoDB Atlas**, en el directiorio **models** guardamos los esquemas e interfaces de los tipos de datos que vamos a manejar en nuestra base de datos, es decir alimentos, platos y menus, por último en el directorio **routers** implementamos las distintas peticiones **HTTP** que recibirá nuestro servidor que serían de tipo **delete**, **get**, **patch** y **post**.
 
-En el directorio **public** almacenaremos el contenido estático que queremos utilizar, como contenido **html**.
+En el directorio **public** almacenaremos el contenido estático que queremos utilizar para mostrar, como contenido **html** o **imagenes**.
 
-### Directorio src
+### [Directorio src](../src)
 
+#### [directorio db](../src/db)
 
+#### [directorio models](../src/models)
 
-### Directorio public
+#### [directorio routers](../src/routers)
+
+### [Directorio public](../public)
+
+Tenemos un archivo **index.html**, este archivo html se seleccionara y se mostrará cuando el servidor reciva una petición de tipo GET en el que se acceda a la URL base.
 
 ## 4. Conclusiones
 
