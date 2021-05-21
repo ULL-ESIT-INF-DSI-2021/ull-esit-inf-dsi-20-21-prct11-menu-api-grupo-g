@@ -5,9 +5,12 @@ import {getRouter} from './routers/get';
 import {patchRouter} from './routers/patch';
 import {deleteRouter} from './routers/delete';
 import {defaultRouter} from './routers/default';
+import {join} from 'path';
+
 
 const app = express();
 app.use(express.json());
+app.use(express.static(join(__dirname, '../public')));
 app.use(postRouter);
 app.use(getRouter);
 app.use(patchRouter);

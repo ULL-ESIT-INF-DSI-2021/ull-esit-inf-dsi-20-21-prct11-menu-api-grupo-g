@@ -2,7 +2,7 @@ import {Document, Schema, model} from 'mongoose';
 
 interface IngredientInterface extends Document {
   name: string,
-  group: 'Carne' | 'Pescado' | 'Moluscos' | 'Huevos' | 'Tofu' | 'Frutos secos' | 'Semillas' | 'Legumbres' | 'Verduras' | 'Hortalizas' | 'Leche' | 'Quesos' | 'Embutidos' | 'Cereales' | 'Frutas' | 'Dulces' | "Grasa",
+  group: 'Carne' | 'Pescado' | 'Moluscos' | 'Huevos' | 'Tofu' | 'Frutos secos' | 'Semillas' | 'Legumbres' | 'Verduras' | 'Hortalizas' | 'Leche' | 'Quesos' | 'Embutidos' | 'Cereales' | 'Frutas' | 'Dulces' | 'Grasa',
   origin: string,
   hydrates: number,
   proteins: number,
