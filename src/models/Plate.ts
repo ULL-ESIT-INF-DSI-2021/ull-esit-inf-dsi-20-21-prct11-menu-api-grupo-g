@@ -10,7 +10,7 @@ interface PlateInterface extends Document {
   lipids: number,
   kcal: number,
   price: number,
-  //predominant: 'Carne' | 'Pescado' | 'Moluscos' | 'Huevos' | 'Tofu' | 'Frutos secos' | 'Semillas' | 'Legumbres' | 'Verduras' | 'Hortalizas' | 'Leche' | 'Quesos' | 'Embutidos' | 'Cereales' | 'Frutas' | 'Dulces' | 'Grasa',
+  predominant: string,
 }
 
 const PlateSchema = new Schema({
@@ -48,11 +48,10 @@ const PlateSchema = new Schema({
   },
   price: {
     type: Number
-  }
-  /*predominant: {
+  },
+  predominant: {
     type: String,
-    enum: ['Carne', 'Pescado', 'Moluscos', 'Huevos', 'Tofu', 'Frutos secos', 'Semillas', 'Legumbres', 'Verduras', 'Hortalizas', 'Leche', 'Quesos', 'Embutidos', 'Cereales', 'Frutas', 'Dulces', 'Grasa']
-  }*/
+  }
 });
 
 export const Plate = model<PlateInterface>('Plate', PlateSchema)
