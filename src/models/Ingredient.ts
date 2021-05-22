@@ -79,4 +79,4 @@ const IngredientSchema = new Schema({
   }
 });
 
-export const Ingredient = model<IngredientInterface>('Ingredient', IngredientSchema)
+export const Ingredient = model<IngredientInterface>('Ingredient', IngredientSchema);

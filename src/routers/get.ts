@@ -1,7 +1,7 @@
 import * as express from 'express';
 import {Ingredient} from '../models/Ingredient';
-import {Plate} from '../models/Plate'
-import {Menu} from '../models/Menu'
+import {Plate} from '../models/Plate';
+import {Menu} from '../models/Menu';
 
 export const getRouter = express.Router();
 

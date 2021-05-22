@@ -1,8 +1,8 @@
 import * as express from 'express';
 import {Ingredient} from '../models/Ingredient';
-import {Plate} from '../models/Plate'
-import {Menu} from '../models/Menu'
-import {predominant} from '../functions'
+import {Plate} from '../models/Plate';
+import {Menu} from '../models/Menu';
+import {predominant} from '../functions';
 
 export const postRouter = express.Router();
 
@@ -49,7 +49,7 @@ postRouter.post('/courses', (req, res) => {
           plateToSave.hydrates = totalHydrates;
           plateToSave.proteins = totalProteins;
           plateToSave.lipids = totalLipids;
-          plateToSave.price = totalPrice;
+          plateToSave.price = +totalPrice.toFixed(2);
           plateToSave.kcal = totalKcal;
           plateToSave.predominant = predominant(groups);
           plateToSave.save().then((plate) => {
@@ -91,10 +91,10 @@ postRouter.post('/menus', (req, res) => {
             Ingredient.findOne({name: eachingredient.name}).then((ing) => {
               if (ing) {
                 if (ingredients.indexOf(ing.name) == -1) {
-                  ingredients.push(ing.name)
+                  ingredients.push(ing.name);
                 }
                 if (groups.indexOf(ing.group) == -1) {
-                  groups.push(ing.group)
+                  groups.push(ing.group);
                 }
                 ingCount++
                 if (ingCount == plate.ingredients.length) {
@@ -120,8 +120,12 @@ postRouter.post('/menus', (req, res) => {
                     res.status(400).send(error);
                   });
                 }
+              } else {
+                res.status(404).send();
               }
-            })
+            }).catch((error) => {
+              res.status(500).send(error);
+            });
           });
         } else {
           res.status(404).send();
@@ -131,6 +135,6 @@ postRouter.post('/menus', (req, res) => {
       });
     });
   } else {
-    res.status(400).send("No se han proporcionado tres menus como minimo");
+    res.status(400).send("No se han proporcionado tres platos como minimo");
   }
 });

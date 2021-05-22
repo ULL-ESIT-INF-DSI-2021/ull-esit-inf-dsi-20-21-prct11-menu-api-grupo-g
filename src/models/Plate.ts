@@ -54,4 +54,4 @@ const PlateSchema = new Schema({
   }
 });
 
-export const Plate = model<PlateInterface>('Plate', PlateSchema)
+export const Plate = model<PlateInterface>('Plate', PlateSchema);
