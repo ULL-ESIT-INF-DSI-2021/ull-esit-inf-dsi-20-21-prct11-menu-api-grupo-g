@@ -1,7 +1,7 @@
 import * as express from 'express';
 import {Ingredient} from '../models/Ingredient';
 import {Plate} from '../models/Plate'
-
+import {Menu} from '../models/Menu'
 export const deleteRouter = express.Router();
 
 // DELETE DE INGREDIENTES
@@ -65,6 +65,38 @@ deleteRouter.delete('/courses/:id', (req, res) => {
       res.status(404).send();
     } else {
       res.send(plate);
+    }
+  }).catch(() => {
+    res.status(400).send();
+  });
+});
+
+// DELETE DE MENUS
+deleteRouter.delete('/menus', (req, res) => {
+  if (!req.query.name) {
+    res.status(400).send({
+      error: 'Se debe proporcionar un nombre',
+    });
+  } else {
+    Menu.findOneAndDelete({name: req.query.name.toString()}).then((menu) => {
+      if (!menu) {
+        res.status(404).send();
+      } else {
+        res.send(menu);
+      }
+    }).catch(() => {
+      res.status(400).send();
+    });
+  }
+});
+
+// DELETE DE MENUS POR ID 
+deleteRouter.delete('/menus/:id', (req, res) => {
+  Menu.findByIdAndDelete(req.params.id).then((menu) => {
+    if (!menu) {
+      res.status(404).send();
+    } else {
+      res.send(menu);
     }
   }).catch(() => {
     res.status(400).send();

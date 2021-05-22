@@ -1,6 +1,7 @@
 import * as express from 'express';
 import {Ingredient} from '../models/Ingredient';
 import {Plate} from '../models/Plate'
+import {Menu} from '../models/Menu'
 
 export const getRouter = express.Router();
 
@@ -54,6 +55,34 @@ getRouter.get('/courses/:id', (req, res) => {
       res.status(404).send();
     } else {
       res.send(plate);
+    }
+  }).catch(() => {
+    res.status(500).send();
+  });
+});
+
+// GET DE MENUS
+getRouter.get('/menus', (req, res) => {
+  const filter = req.query.name?{name: req.query.name.toString()}:{};
+
+  Menu.find(filter).then((menu) => {
+    if (menu.length !== 0) {
+      res.status(200).send(menu);
+    } else {
+      res.status(404).send();
+    }
+  }).catch(() => {
+    res.status(500).send();
+  });
+});
+
+// GET DE MENUS POR ID
+getRouter.get('/menus/:id', (req, res) => {
+  Menu.findById(req.params.id).then((menu) => {
+    if (!menu) {
+      res.status(404).send();
+    } else {
+      res.send(menu);
     }
   }).catch(() => {
     res.status(500).send();
