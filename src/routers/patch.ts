@@ -23,6 +23,7 @@ patchRouter.patch('/ingredients', (req, res) => {
         error: 'No se permite la actualizacion',
       });
     } else {
+      req.body.kcal = (req.body.hydrates * 4) + (req.body.proteins * 4) + (req.body.lipids * 9);
       Ingredient.findOneAndUpdate({name: req.query.name.toString()}, req.body, {
         new: true,
         runValidators: true,
@@ -51,6 +52,7 @@ patchRouter.patch('/ingredients/:id', (req, res) => {
       error: 'No se permite la actualizacion',
     });
   } else {
+    req.body.kcal = (req.body.hydrates * 4) + (req.body.proteins * 4) + (req.body.lipids * 9);
     Ingredient.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,

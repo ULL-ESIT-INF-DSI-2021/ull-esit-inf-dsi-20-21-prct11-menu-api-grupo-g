@@ -7,7 +7,7 @@ A su vez para esto aplicar una base de datos no relacional utilizando **MongoDB/
 
 ## 2. Objetivos
 
-El objetivo principal de la **práctica 11** es poner en práctica lo aprendido a lo largo del curso así como la implementación de conceptos, técnicas y herramientas nuevas cómo son la utilización de promesas, el despliegue de una **API Rest** a través de **Heroku**, la implementación de una base de datos no relacional utilizando **MongoDB/MongoDB Atlas** así como la utilización de **Mongoose** utilizando por otro lado además las operaciones **CRUD**.
+El objetivo principal de la **práctica 11** es poner en práctica lo aprendido a lo largo del curso así como la implementación de conceptos, técnicas y herramientas nuevas cómo son la utilización de **promesas**, el despliegue de una **API Rest** a través de **Heroku**, la implementación de una base de datos no relacional utilizando **MongoDB/MongoDB Atlas** así como la utilización de **Mongoose** utilizando por otro lado además las operaciones **CRUD**.
 
 Para conseguir esto nuestra API tendrá que poder crear, leer, actualizar o borrar un ingrediente a través de los métodos HTTP necesarios, así como platos y menus siguiendo también las pautas de implementación puestos en la práctica 7.
 
@@ -21,6 +21,10 @@ En el directorio **public** almacenaremos el contenido estático que queremos ut
 
 ### [Directorio src](../src)
 
+En el directorio src, a parte de estar el resto de subdirectorios, tenemos los ficheros **index.ts** y **functions.ts**. El fichero **index.ts** es nuestro fichero principal. En este fichero se incluye tanto el servidor de express, como la base de datos (que es importada de otro fichero) y todas las operaciones Post, delete, get y patch, que también son importadas de otros ficheros. Al tener todo en este fichero, tenemos la ejecución del servidor de manera centralizada.  
+
+En cuanto al fichero **functions.ts** su objetivo es el de hacer el código mas modular, teniendo allí diversas funciones, que usamos a lo largo del código. Al final solo hemos necesitado poner una función en este fichero, que lo que hace es devolver el elemento mas repetido de un array. 
+
 #### [directorio db](../src/db)
 
 El único fichero presente en el directorio **db** es **Mongoose.ts**. En este fichero simplemente iniciamos la base de datos de mongodb, la cual es importada al resto de ficheros del directorio router, para poder conectarnos a la base de datos desplegada en MongoDB, o en su defecto, a la base de datos de MongoDB de nuestra máquina local. 
@@ -33,7 +37,8 @@ Para la interfaz **Ingredient** hemos definido los siguientes atributos: nombre,
 En nuestros modelos tenemos varios atributos que no son obligatorios, ya que el objeto JSON que enviamos a través de la peticion HTTP, no es necesariamente el objeto que se va a guardar en la base de datos. Por ejemplo, cuando creamos un ingrediente, le tenemos que pasar todos los atributos anteriormente mencionados excepto kcal, ya que, las kcal se calculan de manera automática en base a los hidratos, lípidos, y proteinas. 
 
 Para la interfaz **Plate** hemos definido los atributos: nombre, categoria, ingredientes, hidratos, proteinas, lípidos, kcal, precio, y grupo predominante. 
-El caso de plato es igual que para ingrediente, no le enviamos todos los atributos. Son estrictamente necesarios los atributos nombre, categoría, y una lista de ingredientes de los que está compuesto ese plato. A partir de estos datos, el propio programa busca los ingredientes en la base de datos, y calcula el resto de atributos a partir de ellos.
+El caso de plato es igual que para ingrediente, no le enviamos todos los atributos. Son estrictamente necesarios los atributos nombre, categoría, y una lista de ingredientes de los que está compuesto ese plato. La categoría de los platos necesariamente tiene que ser "Entrante", "Primer plato", "Segundo plato" o "Postre".
+A partir de estos datos, el propio programa busca los ingredientes en la base de datos, y calcula el resto de atributos a partir de ellos.
 
 Por último, la interfáz **Menu** está compuesta por un nombre, platos, precio, hidratos, lípidos, proteinas, kcal, grupos, e ingredientes. En este caso, para crear un Menu, solo requerimos pasarle un nombre, y la lista de platos, ya que el resto de atributos se calculan buscando los platos en la base de datos y se añaden automáticamente a la base de datos. 
 
@@ -231,21 +236,188 @@ El fichero **patch.ts** es el fichero que usamos para gestionar las solicitudes 
 
 Si quisieramos modificar un ingrediente podriamos modificar uno o varios de los siguientes atributos: Nombre, grupo, origen, hidratos, proteinas, lipidos o el precio, las kcal al igual que en el post se calcular a partir de los hidratos, proteinas o lipidos. Primero comprobamos si es posible la actualización, y en caso de que se pueda realizar, calculamos los atributos que se tienen que actualizar automaticamente basandonos en el POST de ingredientes, y se actualiza el body de la petición, para luego buscar el ingrediente, y al encontrarlo modificarlo con el contenido del body, en caso de que finalmente no se encuentre el ingrediente se enviará un error 404. Por ejemplo, al enviar la siguiente petición y con el siguiente body:
 
---------------------------
+https://grupog-nutritional-app.herokuapp.com/ingredients?name=Atún
+
+```json
+{
+  "name": "Coco rallado",
+  "group": "Semillas",
+  "origin": "Madrid",
+  "hydrates": 6.4,
+  "proteins": 5.6,
+  "lipids": 62,
+  "price": 4.08
+}
+```
 
 Se modificaría de la siguiente manera
 
--------------------------
+```json
+{
+  "_id": "60aa2fa351e0120015b75257",
+  "name": "Coco rallado",
+  "group": "Semillas",
+  "origin": "Madrid",
+  "hydrates": 6.4,
+  "proteins": 5.6,
+  "lipids": 62,
+  "price": 4.08,
+  "kcal": 200,
+  "__v": 0
+}
+```
 
 Si quisieramos modificar un plato podriamos modificar uno o varios de los atributos: Nombre, categoria y lista de ingredientes. Los demás atributos se recalculan automáticamente en caso de que los ingredientes de la lista de ingredientes se modifiquen, es decir se volverian a calcular los hidratos, las proteinas, los lipidos, las kcal, el precio y su grupo predominante. Primero comprobamos si es posible la actualización, y en caso de que se pueda realizar, calculamos los atributos que se tienen que actualizar automaticamente si se han cambiado algún ingrediente siguiendo la realización de como se hace en el POST de platos, una vez hecho esto se actualiza el body para luego buscar el plato, una vez que lo encuentre lo modificará con el body del request actualizado, en caso de no encontrar el plato se enviará un error 404. Por ejemplo, al enviar la siguiente petición y con el siguiente body:
 
------------------------------------------
+https://grupog-nutritional-app.herokuapp.com/courses?name=Escaldón
+
+```json
+{
+  "name": "Croquetas",
+  "category": "Entrante",
+  "ingredients": [
+    {
+      "name": "Pan",
+      "quantity": 250
+    },
+    {
+      "name": "Patata",
+      "quantity": 800
+    },
+    {
+      "name": "Leche entera",
+      "quantity": 0.5
+    },
+    {
+      "name": "Huevo de gallina",
+      "quantity": 73
+    },
+    {
+      "name": "Jamón cocido",
+      "quantity": 150
+    }
+  ]
+}
+```
 
 Se modificaría de la siguiente manera
 
-------------------------------------
+```json
+{
+  "_id": "60aa56c2b43aaa001558a403",
+  "name": "Croquetas",
+  "category": "Entrante",
+  "ingredients": [
+    {
+      "name": "Pan",
+      "quantity": 250
+    },
+    {
+      "name": "Patata",
+      "quantity": 800
+    },
+    {
+      "name": "Leche entera",
+      "quantity": 0.5
+    },
+    {
+      "name": "Huevo de gallina",
+      "quantity": 73
+    },
+    {
+      "name": "Jamón cocido",
+      "quantity": 150
+    }
+  ],
+  "hydrates": 291.03450000000004,
+  "proteins": 76.2405,
+  "lipids": 28.411,
+  "price": 3.17,
+  "kcal": 1724.7990000000002,
+  "predominant": "Cereales",
+  "__v": 0
+}
+```
 
-Si quisieramos modificar un menu podriamos modificar uno o varios atributos: Nombre o lista de platos. Los demás atributos se recalculan automáticamente en caso de que los platos de la lista de platos se modifiquen, es decir se volverían a calcular el precio, los hidratos, las proteinas, los lípidos, las kcal, los grupos alimenticios utilizados y los ingredientes utilizados. Primero comprobamos si es posible la actualización, y en caso de que se pueda realizar calculamos los atributos que se tienen que actualizar si se ha cambiado algún plato, siguiendo las pautas de la misma manera realizada en el POST de menus, así cómo las restricciones, es decir, para actualizar los platos mínimo tienen que ser tres platos y de tres categorías diferentes, una vez hecho esto se actualiza el body de la request y se procede a buscar el menu ebn la base de datos, una vez encontrado se modifica, en caso de no encontrarlo se enviará un error 404. Por ejemplo, al enviar la siguiente petición y con el siguiente body
+Si quisieramos modificar un menu podriamos modificar uno o varios atributos: Nombre o lista de platos. Los demás atributos se recalculan automáticamente en caso de que los platos de la lista de platos se modifiquen, es decir se volverían a calcular el precio, los hidratos, las proteinas, los lípidos, las kcal, los grupos alimenticios utilizados y los ingredientes utilizados. Primero comprobamos si es posible la actualización, y en caso de que se pueda realizar calculamos los atributos que se tienen que actualizar si se ha cambiado algún plato, siguiendo las pautas de la misma manera realizada en el POST de menus, así cómo las restricciones, es decir, para actualizar los platos mínimo tienen que ser tres platos y de tres categorías diferentes, una vez hecho esto se actualiza el body de la request y se procede a buscar el menu ebn la base de datos, una vez encontrado se modifica, en caso de no encontrarlo se enviará un error 404. Por ejemplo, al enviar la siguiente petición y con el siguiente body:
+
+https://grupog-nutritional-app.herokuapp.com/menus?name=Menu 1
+
+```json
+{
+  "name": "Menu 1",
+  "plates": [
+    {
+      "name": "Croquetas"
+    },
+    {
+      "name": "Ensalada"
+    },
+    {
+      "name": "Carne fiesta"
+    },
+    {
+      "name": "Arroz con leche"
+    }
+  ]
+}
+```
+
+Se modificaría de la siguiente manera
+
+```json
+{
+  "_id": "60aa5e1db43aaa001558a425",
+  "name": "Menu 1",
+  "plates": [
+    {
+      "name": "Croquetas"
+    },
+    {
+      "name": "Ensalada"
+    },
+    {
+      "name": "Carne fiesta"
+    },
+    {
+      "name": "Arroz con leche"
+    }
+  ],
+  "hydrates": 537.2995000000001,
+  "proteins": 209.48049999999998,
+  "lipids": 182.70950000000002,
+  "price": 17.42,
+  "kcal": 4631.5055,
+  "ingredients": [
+    "Patata",
+    "Pan",
+    "Leche entera",
+    "Huevo de gallina",
+    "Jamón cocido",
+    "Chuleta de ternera",
+    "Ajo",
+    "Zanahoria",
+    "Aguacate",
+    "Naranja",
+    "Mandarina",
+    "Tomate",
+    "Calabacín",
+    "Lechuga",
+    "Arroz blanco"
+  ],
+  "groups": [
+    "Hortalizas",
+    "Cereales",
+    "Leche",
+    "Huevos",
+    "Embutidos",
+    "Carne",
+    "Verduras",
+    "Frutas"
+  ],
+  "__v": 0
+}
+```
 
 Nuestro fichero **default.ts** es el fichero que usaremos para gestionar todas las peticiones y rutas que nuestro servidor no tienen implementado, en caso de que se active enviará un mensaje con el estado 501 avisando de que no se encuentra implementado.
 
@@ -253,11 +425,103 @@ Nuestro fichero **default.ts** es el fichero que usaremos para gestionar todas l
 
 Tenemos un archivo **index.html**, este archivo html se seleccionara y se mostrará cuando el servidor reciva una petición de tipo GET en el que se acceda a la URL base.
 
-## 4. Conclusiones
+## 4. Utilización de la API
+
+Para utilizar la API desplegada por Heroku, así como para acceder a la base de datos en mongoDB Atlas se pueden realizar las siguientes peticiones **HTTP** y siguiendo los siguientes bodys para los request de las peticiones de tipo **POST** y **PATCH** 
+
+Si queremos acceder a la url base de nuestro servidor utilizariamos la siguiente:
+
+https://grupog-nutritional-app.herokuapp.com
+
+Al acceder a la url se mostraría el contenido que guardamos en el fichero index.html que se encuentra alojado en nuestra carpeta public
+
+Para los tipos **GET** se envía un request cuyo query indique el nombre o ID del ingrediente, plato o menú que deseas obtener. Un ejemplo de uso sería:
+
+https://grupog-nutritional-app.herokuapp.com/ingredients?name=Arroz blanco.
+
+para un plato:
+
+https://grupog-nutritional-app.herokuapp.com/courses?name=Croquetas.
+
+y para un menu:
+
+https://grupog-nutritional-app.herokuapp.com/menus?name=Menu 1.
+
+Para los tipos **DELETE** se envía un request cuyo query indique el nombre o ID del ingrediente, plato o menú que se desea eliminar de la base de datos. La sintaxis sería la misma que para las peticiones tipo **GET**
+
+Para los tipos **POST** se envía un request cuyo body indique que atributos va a tener nuestro objeto
+
+Para hacer un **POST** de un ingrediente, el formato del body sería el siguiente:
+
+```json
+{
+  "name": "Nombre del ingrediente",
+  "group": "Grupo alimenticio",
+  "origin": "Ciudad de origen",
+  "hydrates": <Cantidad de hidratos>,
+  "proteins": <Cantidad de proteinas>,
+  "lipids": <Cantidad de lípidos>,
+  "price": <Precio en €/kg> 
+}
+```
+Este objeto se tendría que enviar a la dirección
+https://grupog-nutritional-app.herokuapp.com/ingredients
+
+```json
+{
+  "name": "Nombre del plato",
+  "category": "Categoria del plato",
+  "ingredients": [
+    {
+      "name": "Ingrediente 1",
+      "quantity": <Cantidad en gramos>
+    },
+    {
+      "name": "Ingrediente 2",
+      "quantity": <Cantidad en gramos>
+    },
+    .
+    .
+    .
+  ]
+}
+```
+Se enviaría el objeto anterior a la siguiente dirección:
+https://grupog-nutritional-app.herokuapp.com/courses
 
 
+Por último, para hacer un **POST** de un menú, hay que enviar un objeto con el siguiente formato:
+```json
+{
+  "name": "Nombre del menu",
+  "plates": [
+    {
+      "name": "Nombre del primer plato"
+    },
+    {
+      "name": "Nombre del segundo plato"
+    },
+    {
+      "name": "Nombre del tercer plato"
+    }
+    .
+    .
+    .
+  ],
+}
+```
+A la dirección
+https://grupog-nutritional-app.herokuapp.com/menus
 
-## 5. Bibliografía y refencias
+Para los tipos **PATCH** se envía un request cuyo body indique que atributos va a tener nuestro objeto, es decir cuales queremos modificar, este body tiene que tener como máximo los atributos que se exponen en los ejemplos **POST** anteriores, así cómo tambien especificar en el query de nuestra URL Request que ingrediente, plato o menú queremos modificar, ya sea pasandole el nombre o el ID de la misma manera que lo hacemos en los apartado **GET** y **DELETE**.
+
+## 5. Conclusiones
+
+En conclusión, esta práctica nos ha permitido entender y profundizar en los conocimientos para crear nuestra propia API REST desplegada por Heroku, y enlazada junto con una base de datos de mongoDB Atlas. Para poder realizar esto ha sido necesario aprender la utilización de **promesas**, las operaciones **CRUD** y utilizar **Mongoose**.
+
+Se ha aprendido bastante con esta práctica, sobretodo porque nos acerca muchismo a casos de la vida real y se puede complementar con otras asignaturas para así de esta manera crear una **API** que sea usable y saber que cosas tener en cuenta para el **back-end**
+
+## 6. Bibliografía y refencias
 
 [Guión práctica 11](https://ull-esit-inf-dsi-2021.github.io/prct11-menu-api/)
 [Página de Mongodb](https://www.mongodb.com/es)
