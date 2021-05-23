@@ -21,8 +21,6 @@ jobs:
           node-version: 15.x
       - name: Dependencies
         run: npm install
-      - name: Coverage
-        run: npm run coverage
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
