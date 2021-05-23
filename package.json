@@ -5,7 +5,11 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "tsc-watch --onSuccess \"node dist/index.js\""
+    "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
+    "heroku-postbuild": "tsc"
+  },
+  "engines": {
+    "node": "16.x"
   },
   "keywords": [],
   "author": "Grupo G",
