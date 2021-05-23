@@ -81,6 +81,11 @@ postRouter.post('/menus', (req, res) => {
   let totalKcal = 0;
   let ingredients: string[] = []
   let groups: string[] = [];
+
+  let countEntrante: number = 0;
+  let countPrimerPlato: number = 0;
+  let countSegundoPlato: number = 0;
+  let countPostre: number = 0;
   
   const plates = MenuRequest.plates
   if (MenuRequest.plates.length >= 3) {
@@ -98,6 +103,14 @@ postRouter.post('/menus', (req, res) => {
                 }
                 ingCount++
                 if (ingCount == plate.ingredients.length) {
+                  if (plate.category == "Entrante")
+                    countEntrante = 1;
+                  if (plate.category == "Primer plato")
+                    countPrimerPlato = 1;
+                  if (plate.category == "Segundo plato")
+                    countSegundoPlato = 1;
+                  if (plate.category == "Postre")
+                    countPostre = 1;
                   ingCount = 0
                   totalHydrates = totalHydrates + plate.hydrates;
                   totalProteins = totalProteins + plate.proteins;
@@ -107,18 +120,23 @@ postRouter.post('/menus', (req, res) => {
                   count++
                 }
                 if (count == plates.length) {
-                  MenuToSave.hydrates = totalHydrates;
-                  MenuToSave.proteins = totalProteins;
-                  MenuToSave.lipids = totalLipids;
-                  MenuToSave.price = totalPrice;
-                  MenuToSave.kcal = totalKcal;
-                  MenuToSave.ingredients = ingredients;
-                  MenuToSave.groups = groups
-                  MenuToSave.save().then((plate) => {
-                    res.status(201).send(plate);
-                  }).catch((error) => {
-                    res.status(400).send(error);
-                  });
+                  let countTotalCategory: number = countEntrante + countPrimerPlato + countSegundoPlato + countPostre
+                  if (countTotalCategory >= 3) { 
+                    MenuToSave.hydrates = totalHydrates;
+                    MenuToSave.proteins = totalProteins;
+                    MenuToSave.lipids = totalLipids;
+                    MenuToSave.price = totalPrice;
+                    MenuToSave.kcal = totalKcal;
+                    MenuToSave.ingredients = ingredients;
+                    MenuToSave.groups = groups
+                    MenuToSave.save().then((plate) => {
+                      res.status(201).send(plate);
+                    }).catch((error) => {
+                      res.status(400).send(error);
+                    });
+                  } else {
+                    res.status(400).send("No se han proporcionado tres categorias de platos como minimo");
+                  }
                 }
               } else {
                 res.status(404).send();
@@ -138,3 +156,5 @@ postRouter.post('/menus', (req, res) => {
     res.status(400).send("No se han proporcionado tres platos como minimo");
   }
 });
+
+
