@@ -69,6 +69,43 @@ El caso del ingrediente, es el mas simple, ya que cuando recibimos todos estos d
 }
 ```
 
+Para el post de platos, recibimos un objeto con el siguiente formato:
+```json
+{
+  "name": "Queso asado",
+  "category": "Entrante",
+  "ingredients": [
+    {
+      "name": "Queso de cabra",
+      "quantity": 200
+    }
+  ]
+}
+```
+En el caso de platos, solo le pasamos, el nombre del plato, y los ingredientes que lo componen, y el programa se encargará de buscar en la base de datos los ingredientes proporcionados. Una vez encuentra estos ingredientes, accede a sus propiedades de hidratos. proteinas, etc, y hace los cálculos necesarios para que al final quede un objeto con el siguiente formato:
+```json
+{
+  "_id": "60aa53035e5d040015b02838",
+  "name": "Queso asado",
+  "category": "Entrante",
+  "ingredients": [
+    {
+      "name": "Queso de cabra",
+      "quantity": 200
+    }
+  ],
+  "hydrates": 2,
+  "proteins": 26.2,
+  "lipids": 31.6,
+  "price": 2.99,
+  "kcal": 397.20000000000005,
+  "predominant": "Quesos",
+  "__v": 0
+}
+```
+Para que este objeto pueda ser guardado en la base de datos, el ingrediente `Queso de cabra` tiene que estar ya introducido en la base de datos de ingredientes, de manera que se puedan hacer los cálculos.
+
+
 
 ### [Directorio public](../public)
 
