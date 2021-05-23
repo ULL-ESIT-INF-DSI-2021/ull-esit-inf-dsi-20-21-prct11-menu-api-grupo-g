@@ -23,14 +23,52 @@ En el directorio **public** almacenaremos el contenido estático que queremos ut
 
 #### [directorio db](../src/db)
 
+El único fichero presente en el directorio **db** es **Mongoose.ts**. En este fichero simplemente iniciamos la base de datos de mongodb, la cual es importada al resto de ficheros del directorio router, para poder conectarnos a la base de datos desplegada en MongoDB, o en su defecto, a la base de datos de MongoDB de nuestra máquina local. 
+
 #### [directorio models](../src/models)
 
 En el directorio models, guardamos, como mencionamos anteriormente, los esquemas e interfaces de los tipos de datos. En este caso, hemos implementado los modelos **Ingredient**, **Plate** y **Menu**. 
 
 Para la interfaz **Ingredient** hemos definido los siguientes atributos: nombre, grupo, origen, hidratos, proteinas, lipidos, kcal, y precio. En cuanto al esquema, tiene los mismos atributos que la interfaz, siendo obligatorios todos los atributos excepto las kcal, que se calculan automáticamente. 
-En nuestros modelos tenemos varios atributos que no son obligatorios, ya que el objeto JSON que enviamos a través de la peticion HTTP, no es necesariamente el objeto que se va a guardar en la base de datos. Por ejemplo, cuando creamos un ingrediente, le tenemos que pasar todos los atributos anteriormente mencionados excepto kcal, ya que, las kcal se calculan de manera automática en base a los hidratos, lípidos, y proteinas.
+En nuestros modelos tenemos varios atributos que no son obligatorios, ya que el objeto JSON que enviamos a través de la peticion HTTP, no es necesariamente el objeto que se va a guardar en la base de datos. Por ejemplo, cuando creamos un ingrediente, le tenemos que pasar todos los atributos anteriormente mencionados excepto kcal, ya que, las kcal se calculan de manera automática en base a los hidratos, lípidos, y proteinas. 
+
+Para la interfaz **Plate** hemos definido los atributos: nombre, categoria, ingredientes, hidratos, proteinas, lípidos, kcal, precio, y grupo predominante. 
+El caso de plato es igual que para ingrediente, no le enviamos todos los atributos. Son estrictamente necesarios los atributos nombre, categoría, y una lista de ingredientes de los que está compuesto ese plato. A partir de estos datos, el propio programa busca los ingredientes en la base de datos, y calcula el resto de atributos a partir de ellos.
+
+Por último, la interfáz **Menu** está compuesta por un nombre, platos, precio, hidratos, lípidos, proteinas, kcal, grupos, e ingredientes. En este caso, para crear un Menu, solo requerimos pasarle un nombre, y la lista de platos, ya que el resto de atributos se calculan y se añaden automáticamente a la base de datos. 
 
 #### [directorio routers](../src/routers)
+
+En este directorio tenemos los ficheros que corresponden a las operaciones CRUD: **Post.ts**, **Get.ts**, **patch.ts**, **post.ts** y **default.ts**. Cada fichero define las diferentes operaciones para los diferentes esquemas. Esto quiere decir que definimos, por ejemplo 3 POSTs, 1 para cada modelo que tenemos (Ingrediente, Plato, y Menú).
+
+El fichero **Post.ts** es el fichero que usamos para gestionar los solicitudes tipo POST que enviamos al servidor. El objetivo de POST es el de crear lo que le pasemos el body de nuestro request en la base de datos, siempre y cuando siga el esquema que tenemos predefinido. Para visualizar mejor el funcionamiento del Post,lo ilustraremos con un ejemplo. El contenido enviado en el body de la petición Post es el siguiente: 
+```json
+{
+  "name": "Arroz blanco",
+  "group": "Cereales",
+  "origin": "Madrid",
+  "hydrates": 86,
+  "proteins": 7,
+  "lipids": 0.9,
+  "price": 1.5
+}
+```
+El caso del ingrediente, es el mas simple, ya que cuando recibimos todos estos datos, sólo tenemos que calcular las kilocalorias en base a las proteinas, lípidos,e hidratos, y se la añadimos al objeto. Una vez añadidas, guardamos ese objeto en nuestra base de datos, que quedaría de la siguiente manera:
+```json
+{
+    "_id":"60aa2dc451e0120015b7524f",
+    "name":"Arroz blanco",
+    "group":"Cereales",
+    "origin":"Madrid",
+    "hydrates":86,
+    "proteins":7,
+    "lipids":0.9,
+    "price":1.5,
+    "kcal":380.1,
+    "__v":0
+}
+```
+
 
 ### [Directorio public](../public)
 
