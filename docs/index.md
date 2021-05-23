@@ -35,13 +35,16 @@ En nuestros modelos tenemos varios atributos que no son obligatorios, ya que el 
 Para la interfaz **Plate** hemos definido los atributos: nombre, categoria, ingredientes, hidratos, proteinas, lípidos, kcal, precio, y grupo predominante. 
 El caso de plato es igual que para ingrediente, no le enviamos todos los atributos. Son estrictamente necesarios los atributos nombre, categoría, y una lista de ingredientes de los que está compuesto ese plato. A partir de estos datos, el propio programa busca los ingredientes en la base de datos, y calcula el resto de atributos a partir de ellos.
 
-Por último, la interfáz **Menu** está compuesta por un nombre, platos, precio, hidratos, lípidos, proteinas, kcal, grupos, e ingredientes. En este caso, para crear un Menu, solo requerimos pasarle un nombre, y la lista de platos, ya que el resto de atributos se calculan y se añaden automáticamente a la base de datos. 
+Por último, la interfáz **Menu** está compuesta por un nombre, platos, precio, hidratos, lípidos, proteinas, kcal, grupos, e ingredientes. En este caso, para crear un Menu, solo requerimos pasarle un nombre, y la lista de platos, ya que el resto de atributos se calculan buscando los platos en la base de datos y se añaden automáticamente a la base de datos. 
 
 #### [directorio routers](../src/routers)
 
-En este directorio tenemos los ficheros que corresponden a las operaciones CRUD: **Post.ts**, **Get.ts**, **patch.ts**, **post.ts** y **default.ts**. Cada fichero define las diferentes operaciones para los diferentes esquemas. Esto quiere decir que definimos, por ejemplo 3 POSTs, 1 para cada modelo que tenemos (Ingrediente, Plato, y Menú).
+En este directorio tenemos los ficheros que corresponden a las operaciones CRUD: **Post**, **Get**, **Patch**, **Delete** y **Default**. Cada fichero define las diferentes operaciones para los diferentes esquemas. Esto quiere decir que definimos, por ejemplo 3 POSTs, 1 para cada modelo que tenemos (Ingrediente, Plato, y Menú).
 
-El fichero **Post.ts** es el fichero que usamos para gestionar los solicitudes tipo POST que enviamos al servidor. El objetivo de POST es el de crear lo que le pasemos el body de nuestro request en la base de datos, siempre y cuando siga el esquema que tenemos predefinido. Para visualizar mejor el funcionamiento del Post,lo ilustraremos con un ejemplo. El contenido enviado en el body de la petición Post es el siguiente: 
+El fichero **post.ts** es el fichero que usamos para gestionar las solicitudes tipo POST que enviamos al servidor. El objetivo de POST es el de crear lo que le pasemos el body de nuestro request en la base de datos, siempre y cuando siga el esquema que tenemos predefinido. Para visualizar mejor el funcionamiento del Post, lo ilustraremos con un ejemplo. Nestra Request Url y el contenido enviado en el body de la petición Post es el siguiente: 
+
+https://grupog-nutritional-app.herokuapp.com/ingredients
+
 ```json
 {
   "name": "Arroz blanco",
@@ -69,7 +72,10 @@ El caso del ingrediente, es el mas simple, ya que cuando recibimos todos estos d
 }
 ```
 
-Para el post de platos, recibimos un objeto con el siguiente formato:
+Para el post de platos, enviamos un objeto con el siguiente formato y con la siguiente Request Url:
+
+https://grupog-nutritional-app.herokuapp.com/courses
+
 ```json
 {
   "name": "Queso asado",
@@ -103,9 +109,145 @@ En el caso de platos, solo le pasamos, el nombre del plato, y los ingredientes q
   "__v": 0
 }
 ```
-Para que este objeto pueda ser guardado en la base de datos, el ingrediente `Queso de cabra` tiene que estar ya introducido en la base de datos de ingredientes, de manera que se puedan hacer los cálculos.
+Por ejemplo, para que este objeto pueda ser guardado en la base de datos, el ingrediente `Queso de cabra` tiene que estar ya introducido en la base de datos de ingredientes, de manera que se puedan hacer los cálculos.
 
+Para el Post de menus, enviamos un objeto con el siguiente formato y la siguiente Request Url:
 
+https://grupog-nutritional-app.herokuapp.com/menus
+
+```json
+{
+  "name": "Menu 1",
+  "plates": [
+    {
+      "name": "Queso asado"
+    },
+    {
+      "name": "Ensalada"
+    },
+    {
+      "name": "Carne fiesta"
+    },
+    {
+      "name": "Arroz con leche"
+    }
+  ]
+}
+```
+Para los menus solo le pasamos el nombre del mismo y de que platos se encuentra compuesto, nuestro programa distinguira el número de platos pasados, si es menor de 3 envia una respuesta con estado 400. Si cuenta con 3 o más platos buscara los platos en la base de datos y si los encuentra buscará los ingredientes de cada plato para así de esta manera realizar los calculos necesarios para conseguir la composición nutricional, el precio y cuales son los ingredientes y grupos alimenticios que componen el menú, además de saber que categoría de platos contiene y guardar el menú en la base de datos si contiene 3 o más categorias de platos diferentes. Una vez que este guardado guardariamos el siguiente objeto:
+
+```json
+[
+  {
+    "_id": "60aa5e1db43aaa001558a425",
+    "name": "Menu 1",
+    "plates": [
+      {
+        "name": "Queso asado"
+      },
+      {
+        "name": "Ensalada"
+      },
+      {
+        "name": "Carne fiesta"
+      },
+      {
+        "name": "Arroz con leche"
+      }
+    ],
+    "hydrates": 248.265,
+    "proteins": 159.44,
+    "lipids": 185.8985,
+    "price": 17.24,
+    "kcal": 3303.9065,
+    "ingredients": [
+      "Aguacate",
+      "Arroz blanco",
+      "Leche entera",
+      "Zanahoria",
+      "Ajo",
+      "Queso de cabra",
+      "Calabacín",
+      "Tomate",
+      "Lechuga",
+      "Chuleta de ternera",
+      "Naranja",
+      "Mandarina"
+    ],
+    "groups": [
+      "Frutas",
+      "Cereales",
+      "Leche",
+      "Hortalizas",
+      "Verduras",
+      "Quesos",
+      "Carne"
+    ],
+    "__v": 0
+  }
+]
+```
+
+En los casos de que no se pueda guardar un ingrediente, un plato o un menu se enviará un respuesta con estado 400, pero si ha resultado de manera exitosa enviará un estado 201, de tal manera de que si ha estado buscando un ingrediente o un plato y no lo encuentra enviará un estado 404 y si ha ocurrido un error interno del sistema será un estado 500.
+
+El fichero **get.ts** es el fichero que usamos para gestionar las solicitudes tipo **GET** que enviamos al servidor. El objetivo de GET es el de buscar y mostrar lo que le pasemos en el Request Url de nuestra petición en caso de que existiera. Podemos realizar una petición GET para buscar todos los ingredientes, todos los platos o todos los menus, así cómo también buscar y mostrar los objetos de estas categorías de manera individual buscando por nombre o ID. por ejemplo si queremos conseguir la información de nuestro ingrediente Arroz blanco enviariamos la siguiente petición de tipo GET
+
+https://grupog-nutritional-app.herokuapp.com/ingredients?name=Arroz blanco
+
+y se nos mostraría la siguiente información
+
+```json
+[
+  {
+    "_id": "60aa2dc451e0120015b7524f",
+    "name": "Arroz blanco",
+    "group": "Cereales",
+    "origin": "Madrid",
+    "hydrates": 86,
+    "proteins": 7,
+    "lipids": 0.9,
+    "price": 1.5,
+    "kcal": 380.1,
+    "__v": 0
+  }
+]
+```
+
+y si se quisiera conseguir por ID se enviaría la siguiente petición:
+
+https://grupog-nutritional-app.herokuapp.com/ingredients/60aa2dc451e0120015b7524f
+
+Así mismo para realizar la busqueda de un plato o un menu sería cambiar la parte que pone ingredients en nuestra Request Url por courses o menus respectivamente y añadir el nombre o ID a buscar y mostrar. En caso de no encontrar el objeto remitira un respuesta de estado 404, pero si lo ha encontrado su respuesta será de tipo 200, así también si ocurre un error interno enviará un estado 500.
+
+El fichero **delete.ts** es el fichero que usamos para gestionar las solicitudes de tipo **DELETE** que eliminaria los ingredientes, platos o menus que hemos solicitado en nuestra Request Url. Primero buscará el objeto y en caso de encontrarlo lo eliminaría de nuestra base de datos y enviaría el objeto que ha conseguido enviar además de un estado 200, en caso de no encontrarlo enviaría un estado 404 y si ocurre un fallo interno será un estado 500. Para cada tipo de objeto se podría eliminar buscando por su nombre o por ID. Si quisieramos eliminar nuestro alimento Arroz blanco podriamos hacerlo de las siguientes maneras.
+
+https://grupog-nutritional-app.herokuapp.com/ingredients?name=Arroz blanco
+
+ó 
+
+https://grupog-nutritional-app.herokuapp.com/ingredients/60aa2dc451e0120015b7524f
+
+El fichero **patch.ts** es el fichero que usamos para gestionar las solicitudes de tipo PATCH. El objetivo de PATCH es el de encontrar el objeto pedido en la Request Url y modificarlo según el body de nuestra request, siempre y cuando cumpla el esquema que tenemos predefinido. Podemos realizar un patch tanto de ingredientes, platos y menus y escoger que atributo queremos modificar, por otro lado podemos escoger los objetos a modificar tanto por su nombre como por su ID.
+
+Si quisieramos modificar un ingrediente podriamos modificar uno o varios de los siguientes atributos: Nombre, grupo, origen, hidratos, proteinas, lipidos o el precio, las kcal al igual que en el post se calcular a partir de los hidratos, proteinas o lipidos. Primero comprobamos si es posible la actualización, y en caso de que se pueda realizar, calculamos los atributos que se tienen que actualizar automaticamente basandonos en el POST de ingredientes, y se actualiza el body de la petición, para luego buscar el ingrediente, y al encontrarlo modificarlo con el contenido del body, en caso de que finalmente no se encuentre el ingrediente se enviará un error 404. Por ejemplo, al enviar la siguiente petición y con el siguiente body:
+
+--------------------------
+
+Se modificaría de la siguiente manera
+
+-------------------------
+
+Si quisieramos modificar un plato podriamos modificar uno o varios de los atributos: Nombre, categoria y lista de ingredientes. Los demás atributos se recalculan automáticamente en caso de que los ingredientes de la lista de ingredientes se modifiquen, es decir se volverian a calcular los hidratos, las proteinas, los lipidos, las kcal, el precio y su grupo predominante. Primero comprobamos si es posible la actualización, y en caso de que se pueda realizar, calculamos los atributos que se tienen que actualizar automaticamente si se han cambiado algún ingrediente siguiendo la realización de como se hace en el POST de platos, una vez hecho esto se actualiza el body para luego buscar el plato, una vez que lo encuentre lo modificará con el body del request actualizado, en caso de no encontrar el plato se enviará un error 404. Por ejemplo, al enviar la siguiente petición y con el siguiente body:
+
+-----------------------------------------
+
+Se modificaría de la siguiente manera
+
+------------------------------------
+
+Si quisieramos modificar un menu podriamos modificar uno o varios atributos: Nombre o lista de platos. Los demás atributos se recalculan automáticamente en caso de que los platos de la lista de platos se modifiquen, es decir se volverían a calcular el precio, los hidratos, las proteinas, los lípidos, las kcal, los grupos alimenticios utilizados y los ingredientes utilizados. Primero comprobamos si es posible la actualización, y en caso de que se pueda realizar calculamos los atributos que se tienen que actualizar si se ha cambiado algún plato, siguiendo las pautas de la misma manera realizada en el POST de menus, así cómo las restricciones, es decir, para actualizar los platos mínimo tienen que ser tres platos y de tres categorías diferentes, una vez hecho esto se actualiza el body de la request y se procede a buscar el menu ebn la base de datos, una vez encontrado se modifica, en caso de no encontrarlo se enviará un error 404. Por ejemplo, al enviar la siguiente petición y con el siguiente body
+
+Nuestro fichero **default.ts** es el fichero que usaremos para gestionar todas las peticiones y rutas que nuestro servidor no tienen implementado, en caso de que se active enviará un mensaje con el estado 501 avisando de que no se encuentra implementado.
 
 ### [Directorio public](../public)
 
