@@ -25,7 +25,7 @@ deleteRouter.delete('/ingredients', (req, res) => {
 
 
 // DELETE DE INGREDIENTES POR ID
-deleteRouter.delete('/ingredient/:id', (req, res) => {
+deleteRouter.delete('/ingredients/:id', (req, res) => {
   Ingredient.findByIdAndDelete(req.params.id).then((ingredient) => {
     if (!ingredient) {
       res.status(404).send();
